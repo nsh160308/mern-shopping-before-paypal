@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Typography, Button, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import FileUpload from './../../utils/FileUpload';
+import axios from 'axios';
 /*
 Typography => 제목, 본문, 목록 등을 포함한 기본 텍스트 작성
 */
@@ -16,15 +17,13 @@ const Continents = [
     {key: 7, value: "남극"}
 ]
 
-function UploadProductPage() {
+function UploadProductPage(props) {
 
     const [Title, setTitle] = useState("")
     const [Description, setDescription] = useState("")
     const [Price, setPrice] = useState(0)
     const [Continent, setContinent] = useState(1)
-
-    //이미지업로드를 위한 state
-    const [Images, setImages] = useState([])
+    const [Images, setImages] = useState([])//이미지업로드를 위한 state
 
     const titleChangeHandler = (event) => {
         setTitle(event.target.value);
@@ -42,6 +41,44 @@ function UploadProductPage() {
         setContinent(event.target.value);
     }
 
+    //FileUpload state에 저장된 이미지 정보를 파라미터로 받을거다.
+    const updateImages = (newImages) => {
+        setImages(newImages);
+    }
+
+    const submitHandler = (event) => {
+        event.preventDefault();
+        console.log('click');
+
+        //간단한 유효성 체크 (모든 칸이 채워지지 않으면 submit 불가능)
+        if(!Title || !Description || !Price || !Continent || !Images) {
+            return alert(" 모든 값을 채워주세요! ");
+        }
+
+        //서버에 채운 값들을 request로 보낸다.
+        const body = {
+            //현재 로그인된 사람의 ID를 가져오려면 어떻게 해야될까?
+            writer: props.user.userData._id,
+            title: Title,
+            description: Description,
+            price: Price,
+            continents: Continent,
+            images: Images
+        }
+
+        console.log('2');
+        axios.post("/api/product",body)
+            .then(response => {
+                if(response.data.success) {
+                    alert("상품 업로드에 성공했습니다.")
+                    props.history.push('/')
+                } else {
+                    alert("상품 업로드에 실패했습니다.")
+                }
+            })
+
+    }
+
     return (
         <div style={{ maxWidth: '700px', margin: '2rem auto'}}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -50,9 +87,7 @@ function UploadProductPage() {
 
             <Form>
                 {/* 드랍 존 */}
-                
-                
-                <FileUpload />
+                <FileUpload refreshFunction={updateImages}/>
 
 
                 <br />
@@ -76,15 +111,12 @@ function UploadProductPage() {
                 </select>
                 <br />
                 <br />
-                <Button>
+                <Button onClick={submitHandler}>
                     확인
                 </Button>
             </Form>
         </div>
 
-
-
-        
     )
 }
 

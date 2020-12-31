@@ -1,10 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
-import { Menu } from 'antd';
+import { Menu, Icon, Badge } from 'antd';
 import axios from 'axios';
 import { USER_SERVER } from '../../../Config';
 import { withRouter } from 'react-router-dom';
 import { useSelector } from "react-redux";
+
 
 function RightMenu(props) {
   const user = useSelector(state => state.user)
@@ -19,6 +20,7 @@ function RightMenu(props) {
     });
   };
 
+  //유동일때
   if (user.userData && !user.userData.isAuth) {
     return (
       <Menu mode={props.mode}>
@@ -30,12 +32,23 @@ function RightMenu(props) {
         </Menu.Item>
       </Menu>
     )
-  } else {
+  }
+  //회원일때 
+  else {
     return (
       <Menu mode={props.mode}>
         <Menu.Item key="upload">
           <a href="/product/upload">업로드</a>
         </Menu.Item>
+
+        <Menu.Item key="cart" style={{ paddingBottom: 3 }}>
+          <Badge count={user.userData && user.userData.cart.length} style={{ marginRight: 22}}>
+            <a href="/user/cart" className="head-example" style={{ color: "#66777" }}>
+              <Icon type="shopping-cart" style={{ fontSize: 30, marginBottom: 3 }}/>
+            </a>
+          </Badge>
+        </Menu.Item>
+
         <Menu.Item key="logout">
           <a onClick={logoutHandler}>로그아웃</a>
         </Menu.Item>
